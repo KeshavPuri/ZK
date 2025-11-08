@@ -114,37 +114,63 @@ app.post("/api/register-id", async (req, res) => {
 //         res.status(500).json({ success: false, message: "Internal server error." });
 //     }
 // });
+// app.post("/api/register-for-event", async (req, res) => {
+//   console.log("🟢 Incoming /api/register-for-event request");
+//   console.log("Request body:", JSON.stringify(req.body, null, 2));
+
+//   try {
+//     const { proof, publicHash } = req.body;
+//     console.log("PublicHash:", publicHash);
+//     console.log("Proof keys:", proof ? Object.keys(proof) : "No proof");
+
+//     const proofValid = await verifyProofOnChain(proof, publicHash);
+//     console.log("✅ Proof verification result:", proofValid);
+
+//     const userRegistered = await checkUserRegistered(publicHash);
+//     console.log("✅ Registry check:", userRegistered);
+
+//     const userData = await getUserByZkID(publicHash);
+//     console.log("✅ DB lookup:", userData);
+
+//     if (!userData) {
+//       console.log(`[API] Data missing for ${publicHash}`);
+//       return res.status(500).json({ success: false, message: "Verified ID, but data missing in DB." });
+//     }
+
+//     res.json({
+//       success: true,
+//       message: "Successfully registered for the event.",
+//       verifiedData: userData,
+//     });
+//   } catch (error) {
+//     console.error("❌ [API] Verification FAILED:", error);
+//     res.status(500).json({ success: false, message: error.message || "Internal server error." });
+//   }
+// });
+
+
 app.post("/api/register-for-event", async (req, res) => {
-  console.log("🟢 Incoming /api/register-for-event request");
-  console.log("Request body:", JSON.stringify(req.body, null, 2));
+  console.log("🟢 Incoming request to /api/register-for-event");
+  console.log("Body:", JSON.stringify(req.body, null, 2));
 
   try {
     const { proof, publicHash } = req.body;
     console.log("PublicHash:", publicHash);
-    console.log("Proof keys:", proof ? Object.keys(proof) : "No proof");
+    console.log("Proof keys:", proof ? Object.keys(proof) : "No proof received");
 
     const proofValid = await verifyProofOnChain(proof, publicHash);
-    console.log("✅ Proof verification result:", proofValid);
+    console.log("Proof valid result:", proofValid);
 
     const userRegistered = await checkUserRegistered(publicHash);
-    console.log("✅ Registry check:", userRegistered);
+    console.log("User registered:", userRegistered);
 
     const userData = await getUserByZkID(publicHash);
-    console.log("✅ DB lookup:", userData);
+    console.log("User data:", userData);
 
-    if (!userData) {
-      console.log(`[API] Data missing for ${publicHash}`);
-      return res.status(500).json({ success: false, message: "Verified ID, but data missing in DB." });
-    }
-
-    res.json({
-      success: true,
-      message: "Successfully registered for the event.",
-      verifiedData: userData,
-    });
+    res.json({ success: true, verifiedData: userData });
   } catch (error) {
     console.error("❌ [API] Verification FAILED:", error);
-    res.status(500).json({ success: false, message: error.message || "Internal server error." });
+    res.status(500).json({ success: false, message: error.message });
   }
 });
 
