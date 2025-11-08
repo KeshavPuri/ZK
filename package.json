@@ -1,9 +1,23 @@
 {
+  "name": "my-node-app",
+  "version": "1.0.0",
+  "description": "A Node.js project using Express, Mongoose, and Ethers.",
+  "main": "index.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "nodemon server.js"
+  },
   "dependencies": {
     "cors": "^2.8.5",
-    "dotenv": "^17.2.3",
-    "ethers": "^5.7.2",
-    "express": "^5.1.0",
-    "mongoose": "^8.19.3"
-  }
+    "dotenv": "^16.4.5",
+    "ethers": "^6.13.4",
+    "express": "^4.21.1",
+    "mongoose": "^8.7.0"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.7"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "MIT"
 }
