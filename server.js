@@ -68,51 +68,84 @@ app.post("/api/register-id", async (req, res) => {
 });
 
 // --- API 2: Event Registration & Verification (The Bouncer) ---
+// app.post("/api/register-for-event", async (req, res) => {
+//     try {
+//         const { proof, publicHash } = req.body;
+        
+//         // 1. CHECK 1 (Ownership Proof): ZK-Proof verification (Judge) - GASLESS VIEW CALL
+//         const proofValid = await verifyProofOnChain(proof, publicHash);
+
+//         if (!proofValid) {
+//             console.log(`[API] Verification FAILED for ${publicHash}: Invalid Proof.`);
+//             return res.status(401).json({ success: false, message: "Invalid ZK-Proof." });
+//         }
+        
+//         // 2. CHECK 2 (Registration Status): Registry check (Guest List) - GASLESS VIEW CALL
+//         const userRegistered = await checkUserRegistered(publicHash);
+
+//         if (!userRegistered) {
+//             console.log(`[API] Verification FAILED for ${publicHash}: ID not registered or deleted.`);
+//             return res.status(401).json({ success: false, message: "ZK-ID not found in Registry." });
+//         }
+
+//         // 3. DATA FETCH: On-chain checks paas, ab trusted data nikalo
+//         const userData = await getUserByZkID(publicHash);
+        
+//         if (!userData) {
+//             console.log(`[API] Data MISSING for verified ZK-ID: ${publicHash}`);
+//             return res.status(500).json({ success: false, message: "Verified ID, but data missing in DB." });
+//         }
+
+//         // 4. FINAL ACTION: Event Organizer ko verified data bhejo
+//         console.log(`[API] ✅ User ${userData.name} registered for event successfully.`);
+//         res.json({
+//             success: true,
+//             message: "Successfully registered for the event.",
+//             verifiedData: {
+//                 name: userData.name,
+//                 email: userData.email,
+//                 college: userData.college,
+//                 zk_id: userData.zk_id
+//             }
+//         });
+
+//     } catch (error) {
+//         console.error("[API] Verification FAILED:", error);
+//         res.status(500).json({ success: false, message: "Internal server error." });
+//     }
+// });
 app.post("/api/register-for-event", async (req, res) => {
-    try {
-        const { proof, publicHash } = req.body;
-        
-        // 1. CHECK 1 (Ownership Proof): ZK-Proof verification (Judge) - GASLESS VIEW CALL
-        const proofValid = await verifyProofOnChain(proof, publicHash);
+  console.log("🟢 Incoming /api/register-for-event request");
+  console.log("Request body:", JSON.stringify(req.body, null, 2));
 
-        if (!proofValid) {
-            console.log(`[API] Verification FAILED for ${publicHash}: Invalid Proof.`);
-            return res.status(401).json({ success: false, message: "Invalid ZK-Proof." });
-        }
-        
-        // 2. CHECK 2 (Registration Status): Registry check (Guest List) - GASLESS VIEW CALL
-        const userRegistered = await checkUserRegistered(publicHash);
+  try {
+    const { proof, publicHash } = req.body;
+    console.log("PublicHash:", publicHash);
+    console.log("Proof keys:", proof ? Object.keys(proof) : "No proof");
 
-        if (!userRegistered) {
-            console.log(`[API] Verification FAILED for ${publicHash}: ID not registered or deleted.`);
-            return res.status(401).json({ success: false, message: "ZK-ID not found in Registry." });
-        }
+    const proofValid = await verifyProofOnChain(proof, publicHash);
+    console.log("✅ Proof verification result:", proofValid);
 
-        // 3. DATA FETCH: On-chain checks paas, ab trusted data nikalo
-        const userData = await getUserByZkID(publicHash);
-        
-        if (!userData) {
-            console.log(`[API] Data MISSING for verified ZK-ID: ${publicHash}`);
-            return res.status(500).json({ success: false, message: "Verified ID, but data missing in DB." });
-        }
+    const userRegistered = await checkUserRegistered(publicHash);
+    console.log("✅ Registry check:", userRegistered);
 
-        // 4. FINAL ACTION: Event Organizer ko verified data bhejo
-        console.log(`[API] ✅ User ${userData.name} registered for event successfully.`);
-        res.json({
-            success: true,
-            message: "Successfully registered for the event.",
-            verifiedData: {
-                name: userData.name,
-                email: userData.email,
-                college: userData.college,
-                zk_id: userData.zk_id
-            }
-        });
+    const userData = await getUserByZkID(publicHash);
+    console.log("✅ DB lookup:", userData);
 
-    } catch (error) {
-        console.error("[API] Verification FAILED:", error);
-        res.status(500).json({ success: false, message: "Internal server error." });
+    if (!userData) {
+      console.log(`[API] Data missing for ${publicHash}`);
+      return res.status(500).json({ success: false, message: "Verified ID, but data missing in DB." });
     }
+
+    res.json({
+      success: true,
+      message: "Successfully registered for the event.",
+      verifiedData: userData,
+    });
+  } catch (error) {
+    console.error("❌ [API] Verification FAILED:", error);
+    res.status(500).json({ success: false, message: error.message || "Internal server error." });
+  }
 });
 
 
