@@ -1,0 +1,8 @@
+# Environment variables
+.env
+
+# Node dependencies
+/node_modules
+
+# Git directory (usually not necessary to ignore)
+.git
