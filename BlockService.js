@@ -58,7 +58,7 @@
 //     registerUserOnChain,
 // };
 // BlockService.js (Final Version: ABIs read from ABIs/ folder)
-const { ethers } = require("ethers");
+const { JsonRpcProvider } = require("ethers");
 const fs = require("fs");
 const path = require("path");
 require("dotenv").config();
@@ -79,7 +79,7 @@ const VERIFIER_CONTRACT_ADDRESS = process.env.VERIFIER_ADDRESS;
 const REGISTRY_CONTRACT_ADDRESS = process.env.REGISTRY_ADDRESS;
 
 // Provider and Signer setup (for READ and WRITE operations)
-const provider = new ethers.providers.JsonRpcProvider(process.env.SEPOLIA_RPC_URL);
+const provider = new JsonRpcProvider(process.env.SEPOLIA_RPC_URL);
 // Private key ko connect karke Signer banao
 const wallet = new ethers.Wallet(process.env.PRIVATE_KEY, provider); 
 
