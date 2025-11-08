@@ -150,14 +150,37 @@ const VerifierContract = new ethers.Contract(VERIFIER_CONTRACT_ADDRESS, VERIFIER
 const RegistryContract = new ethers.Contract(REGISTRY_CONTRACT_ADDRESS, REGISTRY_ABI, wallet);
 
 // --- ZK Proof Verification ---
+// async function verifyProofOnChain(proof, publicHash) {
+//   const publicSignals = [publicHash];
+//   return await VerifierContract.callStatic.verifyProof(
+//     proof.pi_a,
+//     proof.pi_b,
+//     proof.pi_c,
+//     publicSignals
+//   );
+// }
 async function verifyProofOnChain(proof, publicHash) {
   const publicSignals = [publicHash];
-  return await VerifierContract.callStatic.verifyProof(
-    proof.pi_a,
-    proof.pi_b,
-    proof.pi_c,
+
+  // 🧹 Clean up proof format before sending to Solidity
+  const pi_a = proof.pi_a.slice(0, 2); // only first two elements
+  const pi_b = [
+    [proof.pi_b[0][0], proof.pi_b[0][1]],
+    [proof.pi_b[1][0], proof.pi_b[1][1]],
+  ];
+  const pi_c = proof.pi_c.slice(0, 2);
+
+  console.log("🔍 Cleaned proof for verifier:", { pi_a, pi_b, pi_c });
+
+  // ✅ Call verifier with correct shape
+  const result = await VerifierContract.callStatic.verifyProof(
+    pi_a,
+    pi_b,
+    pi_c,
     publicSignals
   );
+
+  return result;
 }
 
 // --- Check User Registered ---
