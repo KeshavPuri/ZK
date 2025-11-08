@@ -9,7 +9,29 @@ const app = express();
 const PORT = 3001;
 
 // Middleware
-app.use(cors()); 
+//app.use(cors()); 
+const allowedOrigins = [
+  "https://dazzling-meerkat-f7b996.netlify.app",
+  "http://localhost:5173"
+];
+
+app.use(
+  cors({
+    origin: function (origin, callback) {
+      if (!origin || allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        callback(new Error("CORS blocked for origin: " + origin));
+      }
+    },
+    methods: ["GET", "POST", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization"],
+    credentials: true,
+  })
+);
+
+// ✅ Handle preflight
+app.options("*", cors());
 app.use(express.json()); 
 
 // --- API 1: ZK-ID Registration (The Passport Office) ---
